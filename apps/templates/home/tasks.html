@@ -1,0 +1,272 @@
+{% extends "layouts/base.html" %}
+
+{% block title %} Tasks {% endblock %} 
+
+<!-- Element injected in the BODY element -->
+{% block body_class %} {% endblock body_class %} 
+
+<!-- Specific Page CSS goes HERE  -->
+{% block stylesheets %}
+
+  <!-- Google Font: Source Sans Pro -->
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback">
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="/static/assets/plugins/fontawesome-free/css/all.min.css">
+  <!-- DataTables -->
+  <link rel="stylesheet" href="/static/assets/plugins/datatables-bs4/css/dataTables.bootstrap4.min.css">
+  <link rel="stylesheet" href="/static/assets/plugins/datatables-responsive/css/responsive.bootstrap4.min.css">
+  <!-- Theme style -->
+  <link rel="stylesheet" href="/static/assets/css/adminlte.min.css">
+  <link rel="stylesheet" href="/static/assets/plugins/toastr/toastr.min.css">
+{% endblock stylesheets %}
+
+{% block content %} 
+<div>
+  <!-- Begin alerts -->                
+  {% with messages = get_flashed_messages(with_categories=true) %}
+  {% if messages %}
+  {% for category, message in messages %}
+  {% if category == 'success' %}
+        <body onload="doMyAlerts('{{message}}','{{category}}');"></body>
+        <script>
+            function doMyAlerts(message,category)
+                    {
+                        swal.fire({
+                        title: "Success",
+                        text: message,
+                        icon: category,
+                        closeOnConfirm: false
+                        });
+                    }
+            </script>
+  {% endif %}
+  {% if category == 'error' %}
+    <body onload="doerrorAlerts('{{message}}','{{category}}');"></body>
+        <script>
+            function doerrorAlerts(message,category)
+                    {
+                        swal.fire({
+                        title: "Error",
+                        text: message,
+                        icon: category,
+                        closeOnConfirm: false
+                        });
+                    }
+            </script>
+  {% endif %}
+  {% if category == 'warning' %}
+    <body onload="doerrorAlerts('{{message}}','{{category}}');"></body>
+        <script>
+            function doerrorAlerts(message,category)
+                    {
+                        swal.fire({
+                        title: "warning",
+                        text: message,
+                        icon: category,
+                        closeOnConfirm: false
+                        });
+                    }
+            </script>
+  {% endif %}
+  {% endfor %}
+  {% endif %}
+  {% endwith %}
+
+  <!-- End alerts -->
+</div>
+  <!-- Content Wrapper. Contains page content -->
+  <div class="content-wrapper">
+    <!-- Content Header (Page header) -->
+    <section class="content-header">
+      <div class="container-fluid">
+        <div class="row mb-2">
+          <div class="col-sm-6">
+            <h1>Tasks</h1>
+          </div>
+          <div class="col-sm-6">
+            <ol class="breadcrumb float-sm-right">
+              <li class="breadcrumb-item"><a href="/">Home</a></li>
+              <li class="breadcrumb-item active">Tasks</li>
+            </ol>
+          </div>
+        </div>
+      </div><!-- /.container-fluid -->
+    </section>
+
+    <!-- Main content -->
+    <section class="content">
+      <div class="container-fluid">
+        <div class="row">
+          <div class="col-12">
+            <div class="card">
+              <div class="card-header">
+                Create Tasks
+                <div class="card-tools">
+                  <div class="btn-group btn-group-sm">
+                    Create Category &nbsp&nbsp
+                    <a href="" class="btn btn-primary" data-toggle="modal"  data-target="#create_category"><i class="fas fa-plus"></i></a>
+                  </div>
+                  &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp
+                  <div class="btn-group btn-group-sm">
+                    Create Task &nbsp&nbsp
+                    <a href="" class="btn btn-primary" data-toggle="modal"  data-target="#project_create"><i class="fas fa-plus"></i></a>
+                  </div>
+                  
+                </div>
+              </div>
+              <!-- /.card-header -->
+              <div class="card-body">
+                <table id="example1" class="table table-bordered table-striped">
+                  <thead>
+                  <tr>
+                    <th class="text-center">Task Name</th>
+                    <th class="text-center">Category</th>
+                    <th class="text-center">Estimated Hrs</th>
+                  </tr>
+                  </thead>
+                  <tbody>
+                    {% for task in data.tasks %}
+                    <tr>                      
+                          <td class="text-center">{{task.taskName}}</td>
+                          <td class="text-center">{{task.category_sub}}</td>
+                          <td class="text-center">{{task.EstimatedHrs}}</td>
+                        </tr>
+                        {% endfor %}
+                </table>
+              </div>
+              <!-- /.card-body -->
+            </div>
+            <!-- /.card -->
+          </div>
+          <!-- /.col -->
+        </div>
+        <!-- /.row -->
+      </div>
+      <!-- /.container-fluid -->
+    </section>
+    <div class="modal fade" id="project_create">
+      <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h4 class="modal-title">Task Create</h4>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            <div class="card">
+              <div class="card-body">
+                <form method="post" action="/tasks">
+                  <div class="form-group">
+                    <input type="hidden" name="type" value="task_create" class="form-control">
+                  </div>
+                  <div class="form-group">
+                    <label for="taskName">Task Name</label>
+                    <input type="text" name="taskName" class="form-control">
+                  </div>
+                  <div class="form-group">
+                    <label for="category_sub">Category & Subject</label>
+                    <select name="category_sub" class="form-control custom-select">
+                      {% for cat in data.category %}
+                      <option value={{cat}}>
+                        {{cat}}
+                      </option>
+                        {% endfor %}
+                    </select>
+                  </div>
+                  <div class="form-group">
+                    <label for="EstimatedHrs">Estimated Hours</label>
+                    <input type="number" name="EstimatedHrs"  min="1" max="100" class="form-control">
+                  </div>
+                <!-- /.card-body -->
+                <div class="modal-footer justify-content-between">
+                  <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                  <button type="submit" class="btn btn-primary">Create Task</button>
+                </div>
+                </form>
+                <!-- /.tab-content -->
+              </div><!-- /.card-body -->
+            </div>
+        </div>
+        <!-- /.modal-content -->
+      </div>
+    </div>
+    </div>
+    <div class="modal fade" id="create_category">
+      <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h4 class="modal-title">Create Category</h4>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            <div class="card">
+              <div class="card-body">
+                <form method="post" action="/tasks">
+                  <div class="form-group">
+                    <input type="hidden" name="type" value="category_create" class="form-control">
+                  </div>
+                  <div class="form-group">
+                    <label for="catName">Category Name</label>
+                    <input type="text" name="catName" class="form-control">
+                  </div>
+                
+                <!-- /.card-body -->
+                <div class="modal-footer justify-content-between">
+                  <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                  <button type="submit" class="btn btn-primary">Create Category</button>
+                </div>
+                </form>
+                <!-- /.tab-content -->
+              </div><!-- /.card-body -->
+            </div>
+        </div>
+        <!-- /.modal-content -->
+      </div>
+    </div>
+    </div>
+    <!-- /.modal-dialog -->
+  </div>
+    <!-- /.content -->
+  </div>
+
+{% endblock content %}
+
+<!-- Specific Page JS goes HERE  -->
+{% block javascripts %}
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <!-- jQuery -->
+  <script src="/static/assets/plugins/jquery/jquery.min.js"></script>
+  <!-- Bootstrap 4 -->
+  <script src="/static/assets/plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
+  <!-- DataTables -->
+  <script src="/static/assets/plugins/datatables/jquery.dataTables.min.js"></script>
+  <script src="/static/assets/plugins/datatables-bs4/js/dataTables.bootstrap4.min.js"></script>
+  <script src="/static/assets/plugins/datatables-responsive/js/dataTables.responsive.min.js"></script>
+  <script src="/static/assets/plugins/datatables-responsive/js/responsive.bootstrap4.min.js"></script>
+  <!-- AdminLTE App -->
+  <script src="/static/assets/js/adminlte.min.js"></script>
+  <!-- AdminLTE for demo purposes -->
+  <script src="/static/assets/js/demo.js"></script>
+  <!-- page script -->
+  <script>
+    $(function () {
+      $("#example1").DataTable({
+        "responsive": true,
+        "autoWidth": false,
+      });
+      $('#example2').DataTable({
+        "paging": true,
+        "lengthChange": false,
+        "searching": false,
+        "ordering": true,
+        "info": true,
+        "autoWidth": false,
+        "responsive": true,
+      });
+    });
+  </script>
+
+{% endblock javascripts %}
